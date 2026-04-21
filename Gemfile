@@ -38,6 +38,11 @@ gem "kamal", require: false
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
 
+# Post-quantum JWT signatures (ML-DSA + hybrid EdDSA+ML-DSA)
+gem "jwt-pq", "~> 0.5"
+# Required by jwt-pq for hybrid EdDSA+ML-DSA operation
+gem "ed25519", "~> 1.4"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
