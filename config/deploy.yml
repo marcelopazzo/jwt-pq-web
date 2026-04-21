@@ -2,7 +2,7 @@ service: jwt-pq-web
 image: marcelopazzo/jwt-pq-web
 
 ssh:
-  user: deploy
+  user: jwt-pq-deploy
 
 servers:
   web:
