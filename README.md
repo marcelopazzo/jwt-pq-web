@@ -46,19 +46,6 @@ bin/rails jwks:show      # Inspect current kid
 bin/rails jwks:rotate    # Generate a fresh ML-DSA-65 key
 ```
 
-## Deploy
-
-Automatic on push to `main` via GitHub Actions, which builds a linux/arm64
-image, pushes to GHCR, and runs Kamal against the configured host.
-Required repository secrets:
-
-- `RAILS_MASTER_KEY`
-- `DEPLOY_SSH_KEY`
-- `SERVER_IP`
-
-Before the first deploy, update `config/deploy.yml` to replace
-`<CAX11_IP>` with the actual server IP / DNS name.
-
 ## License
 
 MIT
