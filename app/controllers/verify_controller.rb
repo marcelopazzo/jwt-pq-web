@@ -23,7 +23,7 @@ class VerifyController < ApplicationController
   rescue ActionController::ParameterMissing => e
     render json: { valid: false, error: "missing_parameter", detail: e.param }, status: :bad_request
   rescue PayloadTooLarge => e
-    render json: { valid: false, error: "payload_too_large", detail: e.field }, status: :payload_too_large
+    render json: { valid: false, error: "payload_too_large", detail: e.field }, status: :content_too_large
   end
 
   private
