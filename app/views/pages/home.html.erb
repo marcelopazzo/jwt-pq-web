@@ -1,0 +1,15 @@
+<% content_for :title, "jwt-pq" %>
+
+<section class="space-y-6">
+  <h1 class="text-4xl font-bold tracking-tight">Post-quantum JWT for Ruby</h1>
+  <p class="text-lg text-slate-700">
+    jwt-pq adds ML-DSA (FIPS 204) signatures to the Ruby JWT ecosystem, plus an optional
+    hybrid EdDSA + ML-DSA mode for defense-in-depth against both classical and quantum
+    adversaries.
+  </p>
+  <p>
+    Paste a token into the <%= link_to "debugger", debugger_path, class: "underline" %>,
+    read the <%= link_to "quick start", quickstart_path, class: "underline" %>,
+    or fetch the live JWKS at <code>/.well-known/jwks.json</code>.
+  </p>
+</section>

@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Jwt Pq Web" %></title>
+    <title><%= content_for?(:title) ? yield(:title) : "jwt-pq" %> — Post-quantum JWT for Ruby</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA." %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+
+    <meta property="og:title" content="jwt-pq — Post-quantum JWT for Ruby">
+    <meta property="og:description" content="Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA.">
+    <meta property="og:type" content="website">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="min-h-screen bg-white text-slate-900 antialiased">
+    <%= render "shared/header" %>
+    <main class="container mx-auto px-5 py-10 max-w-4xl">
       <%= yield %>
     </main>
+    <%= render "shared/footer" %>
   </body>
 </html>
