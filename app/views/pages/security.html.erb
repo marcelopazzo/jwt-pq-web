@@ -1,6 +1,71 @@
 <% content_for :title, "Security" %>
 
-<section class="space-y-4">
-  <h1 class="text-3xl font-bold tracking-tight">Security</h1>
-  <p class="text-slate-700">What jwt-pq protects against — and what it does not.</p>
+<section class="space-y-8">
+  <header class="space-y-2">
+    <h1 class="text-3xl font-bold tracking-tight">Security</h1>
+    <p class="text-slate-700">
+      What jwt-pq protects against, what it deliberately does not, and what
+      lives on the application side.
+    </p>
+  </header>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">What the gem protects against</h2>
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong>Quantum forgery of signatures.</strong> ML-DSA is designed
+          to resist both classical and quantum adversaries at NIST levels 2,
+          3, and 5.</li>
+      <li><strong>Algorithm confusion.</strong> Decoding requires an explicit
+          <code>algorithms:</code> allowlist. Tokens signed with an algorithm
+          outside that list are rejected before signature verification.</li>
+      <li><strong>Key-material lifetime.</strong> <code>Key#destroy!</code>
+          zeroes the secret key buffer in both Ruby and FFI memory. A GC
+          finalizer wipes FFI buffers as a safety net if a key is garbage
+          collected without an explicit <code>destroy!</code>.</li>
+      <li><strong>Thread safety for signing.</strong> Every sign/verify is
+          serialized on a per-instance mutex shared with <code>destroy!</code>,
+          so a concurrent destroy cannot race with an in-flight operation.</li>
+      <li><strong>Hybrid degradation.</strong> In hybrid mode, both the
+          Ed25519 and ML-DSA halves must verify. A break in one algorithm
+          still leaves the token authenticated.</li>
+      <li><strong>Remote JWKS hardening.</strong> The JWKS loader enforces
+          HTTPS, caps response bodies, follows a strict redirect policy, and
+          surfaces fetch failures as a distinct error type.</li>
+    </ul>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">What the gem does not protect against</h2>
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong>Compromised signing keys.</strong> If an attacker steals
+          your private key, they can mint valid tokens. Rotate keys, limit
+          their blast radius, and revoke via <code>kid</code> at the
+          verifier.</li>
+      <li><strong>Replay attacks.</strong> jwt-pq verifies signatures. It
+          does not track token usage. Use <code>jti</code>, <code>nonce</code>,
+          or short <code>exp</code> windows in your application logic.</li>
+      <li><strong>Authorization.</strong> A valid signature proves origin
+          and integrity, not that the bearer is permitted to perform an
+          action. Authorization stays in your app.</li>
+      <li><strong>Clock skew.</strong> The gem inherits ruby-jwt's
+          <code>exp</code>/<code>nbf</code>/<code>iat</code> handling.
+          Choose a leeway that matches your infrastructure.</li>
+      <li><strong>Side channels beyond liboqs's own hardening.</strong> jwt-pq
+          delegates every cryptographic primitive to liboqs. It adds no
+          constant-time guarantees of its own; it also does not add any
+          variable-time code paths over key or signature bytes.</li>
+    </ul>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Reporting a vulnerability</h2>
+    <p>
+      Please disclose security issues privately via the GitHub Security
+      Advisories workflow on the
+      <a href="https://github.com/marcelopazzo/jwt-pq/security" class="underline" rel="noopener">
+        jwt-pq repository</a>.
+      See <code>SECURITY.md</code> in the repo for the current reporting
+      addresses and supported version window.
+    </p>
+  </section>
 </section>

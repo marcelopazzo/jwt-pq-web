@@ -1,6 +1,64 @@
 <% content_for :title, "Quick start" %>
 
-<section class="space-y-4">
-  <h1 class="text-3xl font-bold tracking-tight">Quick start</h1>
-  <p class="text-slate-700">Install the gem and sign your first post-quantum JWT.</p>
+<section class="space-y-8">
+  <header class="space-y-2">
+    <h1 class="text-3xl font-bold tracking-tight">Quick start</h1>
+    <p class="text-slate-700">Install jwt-pq, sign your first post-quantum JWT, verify it.</p>
+  </header>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">1. Install liboqs</h2>
+    <p>jwt-pq binds to liboqs, an open-source implementation of NIST PQC algorithms.</p>
+    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-bash"># macOS
+brew install liboqs
+
+# Debian / Ubuntu
+sudo apt-get install liboqs-dev</code></pre>
+    <p class="text-sm text-slate-600">
+      If liboqs is not on the default linker path, set
+      <code>OQS_LIB</code> to the absolute path of the shared library before
+      loading the gem.
+    </p>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">2. Install the gem</h2>
+    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">gem "jwt-pq", "~&gt; 0.5"
+
+# Optional, only for hybrid mode
+gem "ed25519", "~&gt; 1.4"</code></pre>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">3. Sign and verify</h2>
+    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">require "jwt/pq"
+
+key   = JWT::PQ::Key.generate(:ml_dsa_65)
+token = JWT.encode({ sub: "u-1", iat: Time.now.to_i }, key, "ML-DSA-65")
+
+payload, header = JWT.decode(
+  token, key, true, algorithms: ["ML-DSA-65"]
+)</code></pre>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">4. Export and distribute the public key</h2>
+    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">jwk = JWT::PQ::JWK.new(key).export
+# =&gt; { kty: "AKP", alg: "ML-DSA-65", pub: "...", kid: "..." }
+
+# Publish this somewhere verifiers can reach. jwt-pq can serve a remote
+# JWKS and cache it:
+loader   = JWT::PQ::JWKSLoader.new(url: "https://auth.example/.well-known/jwks.json")
+verifier = loader.key_for(token_kid)</code></pre>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">5. Try it live</h2>
+    <p>
+      The <%= link_to "debugger", debugger_path, class: "underline" %> on this
+      site runs the same gem. Click <em>Load ML-DSA-65 sample</em>, then
+      <em>Verify</em>. The server round-trips the token through jwt-pq —
+      there is no JavaScript reimplementation.
+    </p>
+  </section>
 </section>

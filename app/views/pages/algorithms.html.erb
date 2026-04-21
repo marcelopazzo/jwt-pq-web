@@ -1,6 +1,90 @@
 <% content_for :title, "Algorithms" %>
 
-<section class="space-y-4">
-  <h1 class="text-3xl font-bold tracking-tight">Algorithms</h1>
-  <p class="text-slate-700">ML-DSA parameter sets and when to pick each one.</p>
+<section class="space-y-8">
+  <header class="space-y-2">
+    <h1 class="text-3xl font-bold tracking-tight">Algorithms</h1>
+    <p class="text-slate-700">
+      ML-DSA (FIPS 204) ships in three parameter sets trading signature
+      size and speed for security margin. All three are FIPS-approved.
+    </p>
+  </header>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Parameter sets</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm border border-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="p-2 border-b">alg (JOSE)</th>
+            <th class="p-2 border-b">NIST level</th>
+            <th class="p-2 border-b">Public key</th>
+            <th class="p-2 border-b">Signature</th>
+            <th class="p-2 border-b">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-2 border-b"><code>ML-DSA-44</code></td>
+            <td class="p-2 border-b">Category 2 (~AES-128)</td>
+            <td class="p-2 border-b">1312 B</td>
+            <td class="p-2 border-b">~2420 B</td>
+            <td class="p-2 border-b">Smallest, fastest; minimum level for new systems.</td>
+          </tr>
+          <tr>
+            <td class="p-2 border-b"><code>ML-DSA-65</code></td>
+            <td class="p-2 border-b">Category 3 (~AES-192)</td>
+            <td class="p-2 border-b">1952 B</td>
+            <td class="p-2 border-b">~3293 B</td>
+            <td class="p-2 border-b">Recommended default. Balanced.</td>
+          </tr>
+          <tr>
+            <td class="p-2 border-b"><code>ML-DSA-87</code></td>
+            <td class="p-2 border-b">Category 5 (~AES-256)</td>
+            <td class="p-2 border-b">2592 B</td>
+            <td class="p-2 border-b">~4595 B</td>
+            <td class="p-2 border-b">Highest margin; larger tokens on the wire.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-sm text-slate-600">
+      Sizes are specification-defined, not implementation-specific. All three
+      fit comfortably inside typical cookie / header limits for well-formed
+      tokens, but ML-DSA-87 headers will blow past default Nginx
+      <code>large_client_header_buffers</code> settings — budget for that
+      before rolling out.
+    </p>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Which one?</h2>
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong>ML-DSA-65</strong> for anything new. Category 3 is the
+          safe default.</li>
+      <li><strong>ML-DSA-44</strong> when signature size matters
+          (constrained clients, cookie tokens) and Category 2 is acceptable
+          for the application's threat horizon.</li>
+      <li><strong>ML-DSA-87</strong> when a regulator or internal policy
+          demands top-tier post-quantum strength (e.g. long-lived signed
+          firmware images).</li>
+    </ul>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">JOSE representation</h2>
+    <p>jwt-pq uses the <code>AKP</code> key type from
+      <code>draft-ietf-cose-dilithium</code>:</p>
+    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-json">{
+  "kty": "AKP",
+  "alg": "ML-DSA-65",
+  "pub": "base64url(public_key_bytes)",
+  "kid": "base64url(RFC 7638 thumbprint)"
+}</code></pre>
+    <p class="text-sm text-slate-600">
+      Private JWKs add a <code>priv</code> field in the same base64url shape.
+      The <code>kid</code> is the RFC 7638 thumbprint over
+      <code>{alg, kty, pub}</code> — deterministic and independent of the
+      private key.
+    </p>
+  </section>
 </section>

@@ -1,6 +1,63 @@
-<% content_for :title, "Hybrid" %>
+<% content_for :title, "Hybrid EdDSA + ML-DSA" %>
 
-<section class="space-y-4">
-  <h1 class="text-3xl font-bold tracking-tight">Hybrid EdDSA + ML-DSA</h1>
-  <p class="text-slate-700">Combine classical and post-quantum signatures for defense in depth.</p>
+<section class="space-y-8">
+  <header class="space-y-2">
+    <h1 class="text-3xl font-bold tracking-tight">Hybrid EdDSA + ML-DSA</h1>
+    <p class="text-slate-700">
+      Sign with both Ed25519 and ML-DSA so a break in either algorithm alone
+      still leaves the token authenticated.
+    </p>
+  </header>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Why hybrid</h2>
+    <p>
+      ML-DSA is young. It is a NIST standard, it has been thoroughly analysed,
+      and it is the right long-term bet — but it has not yet absorbed the
+      decades of cryptanalysis that RSA and elliptic curves have. Likewise,
+      Ed25519 is rock-solid against classical adversaries but falls to a
+      cryptographically-relevant quantum computer. A signature that requires
+      <em>both</em> a valid Ed25519 signature and a valid ML-DSA signature is
+      only forgeable by an attacker who can break both algorithms.
+    </p>
+    <p>
+      Hybrid mode is transitional. Run it while the industry gains
+      confidence in ML-DSA alone. Dropping to pure ML-DSA later is a
+      single-field change in the JWT header.
+    </p>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Usage</h2>
+    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">require "jwt/pq"
+
+key   = JWT::PQ::HybridKey.generate(:ml_dsa_65)
+token = JWT.encode({ sub: "u-1" }, key, "EdDSA+ML-DSA-65")
+
+payload, header = JWT.decode(
+  token, key, true, algorithms: ["EdDSA+ML-DSA-65"]
+)
+header["alg"]  # =&gt; "EdDSA+ML-DSA-65"</code></pre>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Wire format</h2>
+    <p>
+      A hybrid JWT's signature section is the concatenation of the Ed25519
+      signature (64 bytes) followed by the ML-DSA signature for the chosen
+      parameter set. Both cover the same signing input
+      (<code>base64url(header) + "." + base64url(payload)</code>), and
+      both must verify. An attacker must forge both to pass verification.
+    </p>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Cost</h2>
+    <p>
+      Token size is dominated by the ML-DSA portion. An
+      <code>EdDSA+ML-DSA-65</code> signature is ~3357 B — the ML-DSA signature
+      plus 64 bytes. CPU cost is dominated by ML-DSA too; Ed25519 verification
+      is fractions of the ML-DSA cost.
+    </p>
+  </section>
 </section>
