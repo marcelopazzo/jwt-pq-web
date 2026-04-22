@@ -3,7 +3,7 @@ require "test_helper"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   PAGES = {
     "/" => "Post-quantum JWT for Ruby",
-    "/quickstart" => "Quick start",
+    "/quickstart" => "Quickstart",
     "/algorithms" => "Algorithms",
     "/hybrid" => "Hybrid EdDSA + ML-DSA",
     "/security" => "Security",

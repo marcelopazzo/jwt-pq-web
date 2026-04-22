@@ -1,63 +1,106 @@
 <% content_for :title, "Hybrid EdDSA + ML-DSA" %>
+<% content_for :description, "Sign with both Ed25519 and ML-DSA so a break in either algorithm alone still leaves the token authenticated." %>
 
-<section class="space-y-8">
-  <header class="space-y-2">
-    <h1 class="text-3xl font-bold tracking-tight">Hybrid EdDSA + ML-DSA</h1>
-    <p class="text-slate-700">
-      Sign with both Ed25519 and ML-DSA so a break in either algorithm alone
-      still leaves the token authenticated.
+<section class="page page--docs">
+  <header class="docs-hero">
+    <span class="ruleset">defense in depth · transitional</span>
+    <h1 class="docs-hero__title">
+      Hybrid
+      <span class="text-display-italic">EdDSA + ML-DSA.</span>
+    </h1>
+    <p class="docs-hero__lede">
+      Sign with Ed25519 and ML-DSA in the same pass. Both must verify.
+      An attacker has to break both algorithms to forge the token.
     </p>
   </header>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Why hybrid</h2>
+  <article class="prose-doc">
+    <h2>Why hybrid</h2>
     <p>
-      ML-DSA is young. It is a NIST standard, it has been thoroughly analysed,
-      and it is the right long-term bet — but it has not yet absorbed the
-      decades of cryptanalysis that RSA and elliptic curves have. Likewise,
-      Ed25519 is rock-solid against classical adversaries but falls to a
-      cryptographically-relevant quantum computer. A signature that requires
-      <em>both</em> a valid Ed25519 signature and a valid ML-DSA signature is
-      only forgeable by an attacker who can break both algorithms.
+      ML-DSA is young. It is a NIST standard, it has been thoroughly
+      analysed, and it is the right long-term bet — but it has not yet
+      absorbed the decades of cryptanalysis that RSA and elliptic curves
+      have. Ed25519, meanwhile, is rock-solid against classical adversaries
+      but falls to a cryptographically-relevant quantum computer.
     </p>
     <p>
-      Hybrid mode is transitional. Run it while the industry gains
-      confidence in ML-DSA alone. Dropping to pure ML-DSA later is a
-      single-field change in the JWT header.
+      A hybrid signature requires <em>both</em> halves to verify. It is only
+      forgeable by an attacker who can break both algorithms — the smaller
+      of two unlikely events. Treat it as transitional: run it while the
+      industry gains confidence in ML-DSA alone. Dropping to pure ML-DSA
+      later is a single-field change in the JWT header.
     </p>
-  </section>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Usage</h2>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">require "jwt/pq"
+    <h2>Installation</h2>
+<pre><code># Gemfile
+gem "jwt-pq"
+gem "jwt-eddsa"   # required for hybrid mode
 
-key   = JWT::PQ::HybridKey.generate(:ml_dsa_65)
-token = JWT.encode({ sub: "u-1" }, key, "EdDSA+ML-DSA-65")
+require "jwt/pq"  # registers EdDSA+ML-DSA-{44,65,87}</code></pre>
+
+    <h2>Usage</h2>
+<pre><code>hybrid_key = JWT::PQ::HybridKey.generate(:ml_dsa_65)
+
+token = JWT.encode({ sub: "u-1" }, hybrid_key, "EdDSA+ML-DSA-65")
 
 payload, header = JWT.decode(
-  token, key, true, algorithms: ["EdDSA+ML-DSA-65"]
+  token, hybrid_key, true, algorithms: ["EdDSA+ML-DSA-65"]
 )
-header["alg"]  # =&gt; "EdDSA+ML-DSA-65"</code></pre>
-  </section>
+header["alg"]     # =&gt; "EdDSA+ML-DSA-65"
+header["pq_alg"]  # =&gt; "ML-DSA-65"</code></pre>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Wire format</h2>
+    <h2>Wire format</h2>
     <p>
       A hybrid JWT's signature section is the concatenation of the Ed25519
-      signature (64 bytes) followed by the ML-DSA signature for the chosen
-      parameter set. Both cover the same signing input
-      (<code>base64url(header) + "." + base64url(payload)</code>), and
-      both must verify. An attacker must forge both to pass verification.
+      signature (exactly 64&nbsp;bytes) followed by the ML-DSA signature
+      for the chosen parameter set, stored in the standard JWT signature
+      field. Both signatures cover the same signing input —
+      <code>base64url(header) + "." + base64url(payload)</code> — and both
+      must verify.
     </p>
-  </section>
+    <table>
+      <thead>
+        <tr>
+          <th>alg</th>
+          <th>Ed25519</th>
+          <th>ML-DSA</th>
+          <th>Combined</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>EdDSA+ML-DSA-44</code></td><td>64 B</td><td>2,420 B</td><td>2,484 B</td></tr>
+        <tr><td><code>EdDSA+ML-DSA-65</code></td><td>64 B</td><td>3,309 B</td><td>3,373 B</td></tr>
+        <tr><td><code>EdDSA+ML-DSA-87</code></td><td>64 B</td><td>4,627 B</td><td>4,691 B</td></tr>
+      </tbody>
+    </table>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Cost</h2>
+    <h2>Cost</h2>
     <p>
-      Token size is dominated by the ML-DSA portion. An
-      <code>EdDSA+ML-DSA-65</code> signature is ~3357 B — the ML-DSA signature
-      plus 64 bytes. CPU cost is dominated by ML-DSA too; Ed25519 verification
-      is fractions of the ML-DSA cost.
+      Token size is dominated by the ML-DSA portion — Ed25519 adds a flat
+      64&nbsp;bytes. CPU cost is dominated by ML-DSA too; Ed25519
+      verification is a fraction of an ML-DSA verify. Expect hybrid
+      EdDSA+ML-DSA-65 to run at roughly 4,700&nbsp;sign/s and
+      3,900&nbsp;verify/s on commodity hardware (vs 5,970 / 9,300 for pure
+      ML-DSA-65).
     </p>
-  </section>
+
+    <h2>Header convention</h2>
+    <p>
+      The <code>alg</code> header uses a <code>ClassicAlg+PQAlg</code>
+      convention. jwt-pq also writes a <code>pq_alg</code> header naming
+      the ML-DSA parameter set directly, to simplify key selection at the
+      verifier.
+    </p>
+    <div class="callout callout--warn">
+      <span class="callout__mark" aria-hidden="true">!</span>
+      <div>
+        The IETF draft <a href="https://datatracker.ietf.org/doc/draft-ietf-cose-dilithium/" rel="noopener" target="_blank"><code>draft-ietf-cose-dilithium</code></a>
+        is still evolving. The <code>alg</code> string for hybrid mode may
+        change as the draft finalizes. See
+        <a href="https://github.com/marcelopazzo/jwt-pq/blob/main/SPEC.md" rel="noopener" target="_blank">SPEC.md</a>
+        for the tracked-specs table and the compatibility policy for draft
+        transitions.
+      </div>
+    </div>
+  </article>
 </section>

@@ -1,64 +1,123 @@
-<% content_for :title, "Quick start" %>
+<% content_for :title, "Quickstart" %>
+<% content_for :description, "Install jwt-pq, sign your first post-quantum JWT, verify it." %>
 
-<section class="space-y-8">
-  <header class="space-y-2">
-    <h1 class="text-3xl font-bold tracking-tight">Quick start</h1>
-    <p class="text-slate-700">Install jwt-pq, sign your first post-quantum JWT, verify it.</p>
+<section class="page page--docs">
+  <header class="docs-hero">
+    <span class="ruleset">quickstart · five minutes</span>
+    <h1 class="docs-hero__title">
+      From zero to a signed
+      <span class="text-display-italic">post-quantum</span> JWT.
+    </h1>
+    <p class="docs-hero__lede">
+      jwt-pq installs like any Ruby gem. liboqs (the C library underneath
+      ML-DSA) is bundled — it compiles from source the first time you run
+      <code class="code-inline">bundle install</code> (~30 seconds).
+    </p>
   </header>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">1. Install liboqs</h2>
-    <p>jwt-pq binds to liboqs, an open-source implementation of NIST PQC algorithms.</p>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-bash"># macOS
-brew install liboqs
+  <article class="prose-doc">
+    <h2>Requirements</h2>
+    <ul>
+      <li>Ruby &ge; 3.2</li>
+      <li>CMake &ge; 3.15 and a C compiler (gcc or clang) — only needed at install time.</li>
+    </ul>
 
-# Debian / Ubuntu
-sudo apt-get install liboqs-dev</code></pre>
-    <p class="text-sm text-slate-600">
-      If liboqs is not on the default linker path, set
-      <code>OQS_LIB</code> to the absolute path of the shared library before
-      loading the gem.
+    <h2>Install the gem</h2>
+<pre><code>gem "jwt-pq", "~&gt; 0.5"
+
+# Optional — only if you want the hybrid algorithms
+gem "jwt-eddsa"</code></pre>
+
+    <p>
+      By default the gem builds the bundled liboqs. To link against a
+      system-installed liboqs instead, pass <code class="code-inline">--use-system-libraries</code>
+      at install time (persisted for Bundler):
     </p>
-  </section>
+<pre><code>bundle config build.jwt-pq --use-system-libraries
+bundle install</code></pre>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">2. Install the gem</h2>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">gem "jwt-pq", "~&gt; 0.5"
+    <p>
+      At runtime, if liboqs is not on the default linker path, point the gem
+      at the shared library with <code class="code-inline">OQS_LIB</code>
+      before loading <code class="code-inline">jwt/pq</code>:
+    </p>
+<pre><code># macOS
+export OQS_LIB=/opt/homebrew/lib/liboqs.dylib
 
-# Optional, only for hybrid mode
-gem "ed25519", "~&gt; 1.4"</code></pre>
-  </section>
+# Linux
+export OQS_LIB=/usr/local/lib/liboqs.so</code></pre>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">3. Sign and verify</h2>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">require "jwt/pq"
+    <h2>Sign and verify</h2>
+<pre><code>require "jwt/pq"
 
-key   = JWT::PQ::Key.generate(:ml_dsa_65)
-token = JWT.encode({ sub: "u-1", iat: Time.now.to_i }, key, "ML-DSA-65")
+key     = JWT::PQ::Key.generate(:ml_dsa_65)
+token   = JWT.encode({ sub: "u-1", iat: Time.now.to_i }, key, "ML-DSA-65")
 
 payload, header = JWT.decode(
   token, key, true, algorithms: ["ML-DSA-65"]
-)</code></pre>
-  </section>
+)
+header["alg"]  # =&gt; "ML-DSA-65"
+payload["sub"] # =&gt; "u-1"</code></pre>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">4. Export and distribute the public key</h2>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">jwk = JWT::PQ::JWK.new(key).export
+    <p>
+      Public-key-only verification works the same way — just construct the
+      key from its bytes:
+    </p>
+<pre><code>public_key_bytes = key.public_key        # raw bytes
+pub = JWT::PQ::Key.from_public_key("ML-DSA-65", public_key_bytes)
+
+JWT.decode(token, pub, true, algorithms: ["ML-DSA-65"])</code></pre>
+
+    <h2>Export and distribute the public key</h2>
+<pre><code># JWK
+jwk = JWT::PQ::JWK.new(key).export
 # =&gt; { kty: "AKP", alg: "ML-DSA-65", pub: "...", kid: "..." }
 
-# Publish this somewhere verifiers can reach. jwt-pq can serve a remote
-# JWKS and cache it:
-loader   = JWT::PQ::JWKSLoader.new(url: "https://auth.example/.well-known/jwks.json")
-verifier = loader.key_for(token_kid)</code></pre>
-  </section>
+# PEM
+spki  = key.to_pem           # SPKI (public)
+pkcs8 = key.private_to_pem   # PKCS#8 (private) — keep this offline
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">5. Try it live</h2>
+# Reimport
+pub_key  = JWT::PQ::Key.from_pem(spki)
+full_key = JWT::PQ::Key.from_pem_pair(public_pem: spki, private_pem: pkcs8)</code></pre>
+
+    <h2>Serve a JWKS</h2>
     <p>
-      The <%= link_to "debugger", debugger_path, class: "underline" %> on this
-      site runs the same gem. Click <em>Load ML-DSA-65 sample</em>, then
-      <em>Verify</em>. The server round-trips the token through jwt-pq —
-      there is no JavaScript reimplementation.
+      For multi-key rotation or cross-service verification, publish a JWK Set.
+      The set is indexed by RFC&nbsp;7638 thumbprint, which is also the default
+      <code>kid</code>:
     </p>
-  </section>
+<pre><code>jwks = JWT::PQ::JWKSet.new([key_current, key_next])
+File.write("public/.well-known/jwks.json", jwks.to_json)</code></pre>
+
+    <h2>Consume a remote JWKS</h2>
+<pre><code>jwks = JWT::PQ::JWKSet.fetch("https://issuer.example/.well-known/jwks.json")
+
+_payload, header = JWT.decode(token, nil, false)  # peek, unverified
+key = jwks[header["kid"]] or raise "unknown kid"
+payload, = JWT.decode(token, key, true, algorithms: [header["alg"]])</code></pre>
+
+    <p>
+      <code>JWKSet.fetch</code> ships with defence-in-depth defaults: HTTPS
+      only, redirects rejected, 1&nbsp;MB body cap, 5&nbsp;s timeouts, TTL
+      cache with <code>ETag</code> revalidation. Tune via keyword args
+      (<code>cache_ttl:</code>, <code>timeout:</code>,
+      <code>max_body_bytes:</code>, …).
+    </p>
+
+    <h2>Try it live</h2>
+    <p>
+      The <%= link_to "debugger", debugger_path %> on this site runs the same
+      gem in the same Rails process. Click <em>Load ML-DSA-65</em>, then
+      <em>Verify signature</em>. The token is decoded server-side — there is
+      no JavaScript reimplementation.
+    </p>
+
+    <h2>Next</h2>
+    <ul>
+      <li><%= link_to "Algorithms", algorithms_path %> — ML-DSA-44 / 65 / 87: sizes, NIST levels, which to pick.</li>
+      <li><%= link_to "Hybrid", hybrid_path %> — when EdDSA&nbsp;+&nbsp;ML-DSA beats ML-DSA alone.</li>
+      <li><%= link_to "Security", security_path %> — what the gem guarantees and what it deliberately leaves to your app.</li>
+    </ul>
+  </article>
 </section>

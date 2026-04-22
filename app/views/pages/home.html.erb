@@ -1,62 +1,233 @@
 <% content_for :title, "jwt-pq" %>
 <% content_for :description, "Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA, verified server-side against the real gem." %>
 
-<section class="space-y-8">
-  <header class="space-y-4">
-    <h1 class="text-4xl font-bold tracking-tight">Post-quantum JWT for Ruby</h1>
-    <p class="text-xl text-slate-700">
-      jwt-pq signs and verifies JSON Web Tokens with ML-DSA (FIPS 204), the
-      post-quantum digital signature standardized by NIST in 2024. An optional
-      hybrid mode layers classical EdDSA on top so a break in either algorithm
-      alone does not break the token.
-    </p>
-  </header>
+<section class="page page--home">
+  <div class="hero">
+    <div class="hero__text">
+      <div class="reveal reveal-1">
+        <span class="ruleset">FIPS&nbsp;204 &middot; ML-DSA &middot; draft-ietf-cose-dilithium</span>
+      </div>
+      <h1 class="hero__headline reveal reveal-2">
+        Post-quantum
+        <span class="text-display-italic">JWTs</span>
+        for Ruby.
+      </h1>
+      <p class="hero__lede reveal reveal-3">
+        <strong>jwt-pq</strong> adds ML-DSA (FIPS&nbsp;204) and hybrid
+        EdDSA&nbsp;+&nbsp;ML-DSA signatures to the
+        <a href="https://github.com/jwt/ruby-jwt" rel="noopener">ruby-jwt</a>
+        ecosystem. Drop-in with <code class="code-inline">JWT.encode</code>
+        and <code class="code-inline">JWT.decode</code>, JWK import/export,
+        RFC&nbsp;7638 thumbprints, and a streaming-safe remote JWKS loader.
+      </p>
+      <div class="hero__cta reveal reveal-4">
+        <%= link_to quickstart_path, class: "btn btn-primary" do %>
+          Quickstart <span aria-hidden="true">→</span>
+        <% end %>
+        <a href="https://github.com/marcelopazzo/jwt-pq" class="btn btn-ghost" rel="noopener" target="_blank">
+          View source
+        </a>
+        <a href="https://rubygems.org/gems/jwt-pq" class="btn btn-ghost" rel="noopener" target="_blank">
+          gem install jwt-pq
+        </a>
+      </div>
+    </div>
 
-  <section class="space-y-3">
-    <h2 class="text-2xl font-semibold tracking-tight">Why now</h2>
-    <p>
-      A sufficiently large quantum computer breaks every elliptic-curve and
-      RSA signature on the wire today. Nobody knows when that machine arrives,
-      but tokens signed this year may still be in audit logs, archived S3
-      buckets, and signed bundles a decade from now. Migrating signature
-      algorithms is a multi-year operation — library support, key rotation,
-      verifier rollout, revocation. The time to start is before you have to.
-    </p>
-    <p>
-      NIST finalized ML-DSA in FIPS 204 in August 2024. The COSE working group
-      has an active draft mapping ML-DSA into the JOSE/COSE ecosystem
-      (<code>draft-ietf-cose-dilithium</code>). jwt-pq tracks that draft: the
-      <code>alg</code> values, the <code>AKP</code> key type, the JWK shape.
-    </p>
+    <aside class="hero__facts reveal reveal-5" aria-label="At a glance">
+      <div class="fact">
+        <span class="fact__key">Backend</span>
+        <span class="fact__val">liboqs &middot; FFI</span>
+      </div>
+      <div class="fact">
+        <span class="fact__key">Algorithms</span>
+        <span class="fact__val">ML-DSA-44 / 65 / 87</span>
+      </div>
+      <div class="fact">
+        <span class="fact__key">Hybrid</span>
+        <span class="fact__val">EdDSA&nbsp;+&nbsp;ML-DSA</span>
+      </div>
+      <div class="fact">
+        <span class="fact__key">Key type</span>
+        <span class="fact__val">AKP (JWK)</span>
+      </div>
+      <div class="fact">
+        <span class="fact__key">Standards</span>
+        <span class="fact__val">FIPS&nbsp;204 &middot; RFC&nbsp;9864</span>
+      </div>
+      <div class="fact">
+        <span class="fact__key">License</span>
+        <span class="fact__val">MIT</span>
+      </div>
+    </aside>
+  </div>
+
+  <div class="home-divider" aria-hidden="true">
+    <span class="ruleset">try it — every verification below runs the real gem server-side</span>
+  </div>
+
+  <%= render "shared/debugger" %>
+
+  <section class="home-section">
+    <span class="ruleset">thirty-second example</span>
+    <div class="home-section__grid">
+      <div>
+        <h2 class="home-section__title">
+          Drop-in with <span class="text-display-italic">ruby-jwt</span>.
+        </h2>
+        <p class="home-section__body">
+          <code class="code-inline">require "jwt/pq"</code> registers the new
+          algorithms via ruby-jwt's public <code class="code-inline">SigningAlgorithm.register_algorithm</code>
+          hook — not a monkey-patch. Load order between
+          <code class="code-inline">jwt</code> and
+          <code class="code-inline">jwt/pq</code> does not matter, and
+          registration is idempotent.
+        </p>
+      </div>
+      <pre class="code-block"><code>require "jwt/pq"
+
+key   = JWT::PQ::Key.generate(:ml_dsa_65)
+token = JWT.encode({ sub: "u-1" }, key, "ML-DSA-65")
+
+payload, header = JWT.decode(
+  token, key, true, algorithms: ["ML-DSA-65"]
+)
+header["alg"]  # =&gt; "ML-DSA-65"</code></pre>
+    </div>
   </section>
 
-  <section class="space-y-3">
-    <h2 class="text-2xl font-semibold tracking-tight">30-second example</h2>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-ruby">require "jwt/pq"
+  <section class="home-section">
+    <span class="ruleset">feature map</span>
+    <div class="feature-grid">
+      <article class="feature">
+        <span class="feature__index">01</span>
+        <h3 class="feature__title">ML-DSA at three levels</h3>
+        <p class="feature__body">
+          All FIPS&nbsp;204 parameter sets: <code class="code-inline">ML-DSA-44</code>,
+          <code class="code-inline">ML-DSA-65</code>, <code class="code-inline">ML-DSA-87</code>.
+          NIST categories 2, 3, 5.
+        </p>
+        <%= link_to algorithms_path, class: "feature__link" do %>
+          See the sizes <span aria-hidden="true">→</span>
+        <% end %>
+      </article>
 
-key    = JWT::PQ::Key.generate(:ml_dsa_65)
-token  = JWT.encode({ sub: "u-1" }, key, "ML-DSA-65")
+      <article class="feature">
+        <span class="feature__index">02</span>
+        <h3 class="feature__title">Hybrid, if you need it</h3>
+        <p class="feature__body">
+          <code class="code-inline">EdDSA+ML-DSA-{44,65,87}</code> concatenates
+          an Ed25519 signature with an ML-DSA one. Both must verify. Break
+          one algorithm, the token still holds.
+        </p>
+        <%= link_to hybrid_path, class: "feature__link" do %>
+          Hybrid details <span aria-hidden="true">→</span>
+        <% end %>
+      </article>
 
-decoded, header = JWT.decode(token, key, true, algorithms: ["ML-DSA-65"])
-header["alg"]   # =&gt; "ML-DSA-65"
-decoded["sub"]  # =&gt; "u-1"</code></pre>
-    <p class="text-slate-700">
-      Keys export to JWK (<code>kty: "AKP"</code>) and PEM (SPKI / PKCS#8).
-      A matching hybrid API (<code>JWT::PQ::HybridKey</code>, alg
-      <code>EdDSA+ML-DSA-65</code>) concatenates an Ed25519 signature with the
-      ML-DSA one for defense in depth.
-    </p>
+      <article class="feature">
+        <span class="feature__index">03</span>
+        <h3 class="feature__title">JWK &amp; PEM, both ways</h3>
+        <p class="feature__body">
+          JWK export/import (<code class="code-inline">kty: "AKP"</code>) with
+          RFC&nbsp;7638 thumbprints as <code class="code-inline">kid</code>.
+          PEM via SPKI (public) and PKCS#8 (private).
+        </p>
+        <%= link_to quickstart_path, class: "feature__link" do %>
+          Serialize a key <span aria-hidden="true">→</span>
+        <% end %>
+      </article>
+
+      <article class="feature">
+        <span class="feature__index">04</span>
+        <h3 class="feature__title">Remote JWKS, hardened</h3>
+        <p class="feature__body">
+          <code class="code-inline">JWT::PQ::JWKSet.fetch(url)</code> with a
+          TTL cache, ETag revalidation, HTTPS-only, 1&nbsp;MB body cap, and
+          redirect rejection. Failures raise
+          <code class="code-inline">JWKSFetchError</code>.
+        </p>
+        <a href="https://github.com/marcelopazzo/jwt-pq#fetching-a-remote-jwks" class="feature__link" rel="noopener" target="_blank">
+          Reference <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+
+      <article class="feature">
+        <span class="feature__index">05</span>
+        <h3 class="feature__title">KAT-verified</h3>
+        <p class="feature__body">
+          CI runs the full NIST ACVP sigVer known-answer tests against
+          <code class="code-inline">Key#verify</code> for all three parameter
+          sets, every push — plus cross-interop against
+          <code class="code-inline">dilithium-py</code>.
+        </p>
+        <a href="https://github.com/marcelopazzo/jwt-pq/actions/workflows/interop.yml" class="feature__link" rel="noopener" target="_blank">
+          Interop workflow <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+
+      <article class="feature">
+        <span class="feature__index">06</span>
+        <h3 class="feature__title">Thread-safe, zeroing keys</h3>
+        <p class="feature__body">
+          Per-instance mutex serializes sign/verify/destroy.
+          <code class="code-inline">Key#destroy!</code> zeroes the secret
+          buffer in Ruby and in FFI memory; a GC finalizer wipes buffers as
+          a safety net.
+        </p>
+        <%= link_to security_path, class: "feature__link" do %>
+          Security model <span aria-hidden="true">→</span>
+        <% end %>
+      </article>
+    </div>
   </section>
 
-  <section class="space-y-3">
-    <h2 class="text-2xl font-semibold tracking-tight">Where next</h2>
-    <ul class="list-disc pl-6 space-y-2">
-      <li><%= link_to "Quick start", quickstart_path, class: "underline" %> — install and sign in five minutes.</li>
-      <li><%= link_to "Algorithms", algorithms_path, class: "underline" %> — ML-DSA-44 / 65 / 87: which to pick.</li>
-      <li><%= link_to "Hybrid", hybrid_path, class: "underline" %> — when EdDSA+ML-DSA beats ML-DSA alone.</li>
-      <li><%= link_to "Security", security_path, class: "underline" %> — what the gem guarantees and what it does not.</li>
-      <li><%= link_to "Debugger", debugger_path, class: "underline" %> — paste a token, verify against the live gem.</li>
-      <li><code>/.well-known/jwks.json</code> — long-lived demo JWKS for integration testing.</li>
-    </ul>
+  <section class="home-section">
+    <span class="ruleset">a word on size</span>
+    <div class="home-section__grid">
+      <div>
+        <h2 class="home-section__title">
+          ML-DSA signatures are <span class="text-display-italic">bigger.</span>
+          Plan for it.
+        </h2>
+        <p class="home-section__body">
+          An ML-DSA-65 JWT signature is roughly <code class="code-inline">4.4&nbsp;KB</code>
+          after base64url encoding — vs ~86&nbsp;B for Ed25519 or ~342&nbsp;B
+          for RS256. Cookie tokens, header buffer limits, and log pipelines
+          all need a look before rollout.
+        </p>
+      </div>
+      <div class="size-table panel">
+        <table class="size-table__table">
+          <thead>
+            <tr>
+              <th>alg</th>
+              <th>level</th>
+              <th>public key</th>
+              <th>signature</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="code-inline">ML-DSA-44</code></td>
+              <td>2</td>
+              <td>1,312 B</td>
+              <td>2,420 B</td>
+            </tr>
+            <tr>
+              <td><code class="code-inline">ML-DSA-65</code></td>
+              <td>3</td>
+              <td>1,952 B</td>
+              <td>3,309 B</td>
+            </tr>
+            <tr>
+              <td><code class="code-inline">ML-DSA-87</code></td>
+              <td>5</td>
+              <td>2,592 B</td>
+              <td>4,627 B</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </section>
 </section>

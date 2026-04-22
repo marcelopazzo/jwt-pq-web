@@ -1,90 +1,129 @@
 <% content_for :title, "Algorithms" %>
+<% content_for :description, "ML-DSA-44, ML-DSA-65, and ML-DSA-87 — sizes, NIST security levels, and how to pick between them." %>
 
-<section class="space-y-8">
-  <header class="space-y-2">
-    <h1 class="text-3xl font-bold tracking-tight">Algorithms</h1>
-    <p class="text-slate-700">
-      ML-DSA (FIPS 204) ships in three parameter sets trading signature
-      size and speed for security margin. All three are FIPS-approved.
+<section class="page page--docs">
+  <header class="docs-hero">
+    <span class="ruleset">FIPS 204 · three parameter sets</span>
+    <h1 class="docs-hero__title">
+      ML-DSA, at three
+      <span class="text-display-italic">security levels.</span>
+    </h1>
+    <p class="docs-hero__lede">
+      FIPS&nbsp;204 ships three parameter sets trading signature size and
+      speed against security margin. All three are FIPS-approved. jwt-pq
+      registers JOSE <code class="code-inline">alg</code> values for each.
     </p>
   </header>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Parameter sets</h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm border border-slate-200">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="p-2 border-b">alg (JOSE)</th>
-            <th class="p-2 border-b">NIST level</th>
-            <th class="p-2 border-b">Public key</th>
-            <th class="p-2 border-b">Signature</th>
-            <th class="p-2 border-b">Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="p-2 border-b"><code>ML-DSA-44</code></td>
-            <td class="p-2 border-b">Category 2 (~AES-128)</td>
-            <td class="p-2 border-b">1312 B</td>
-            <td class="p-2 border-b">~2420 B</td>
-            <td class="p-2 border-b">Smallest, fastest; minimum level for new systems.</td>
-          </tr>
-          <tr>
-            <td class="p-2 border-b"><code>ML-DSA-65</code></td>
-            <td class="p-2 border-b">Category 3 (~AES-192)</td>
-            <td class="p-2 border-b">1952 B</td>
-            <td class="p-2 border-b">~3293 B</td>
-            <td class="p-2 border-b">Recommended default. Balanced.</td>
-          </tr>
-          <tr>
-            <td class="p-2 border-b"><code>ML-DSA-87</code></td>
-            <td class="p-2 border-b">Category 5 (~AES-256)</td>
-            <td class="p-2 border-b">2592 B</td>
-            <td class="p-2 border-b">~4595 B</td>
-            <td class="p-2 border-b">Highest margin; larger tokens on the wire.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="text-sm text-slate-600">
-      Sizes are specification-defined, not implementation-specific. All three
-      fit comfortably inside typical cookie / header limits for well-formed
-      tokens, but ML-DSA-87 headers will blow past default Nginx
-      <code>large_client_header_buffers</code> settings — budget for that
-      before rolling out.
+  <article class="prose-doc">
+    <h2>Parameter sets</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>alg (JOSE)</th>
+          <th>NIST level</th>
+          <th>Public key</th>
+          <th>Signature</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ML-DSA-44</code></td>
+          <td>Category 2 (~AES-128)</td>
+          <td>1,312 B</td>
+          <td>2,420 B</td>
+          <td>Smallest, fastest.</td>
+        </tr>
+        <tr>
+          <td><code>ML-DSA-65</code></td>
+          <td>Category 3 (~AES-192)</td>
+          <td>1,952 B</td>
+          <td>3,309 B</td>
+          <td>Recommended default.</td>
+        </tr>
+        <tr>
+          <td><code>ML-DSA-87</code></td>
+          <td>Category 5 (~AES-256)</td>
+          <td>2,592 B</td>
+          <td>4,627 B</td>
+          <td>Highest margin; largest wire footprint.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Sizes are specification-defined and identical across implementations.
+      Base64url-encoded JWT signatures are ~4/3 of the raw byte count — an
+      ML-DSA-65 signature comes out at roughly 4.4&nbsp;KB on the wire.
+      Budget for that against default nginx
+      <code>large_client_header_buffers</code> and CDN header limits
+      <em>before</em> rollout, especially for ML-DSA-87.
     </p>
-  </section>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Which one?</h2>
-    <ul class="list-disc pl-6 space-y-2">
-      <li><strong>ML-DSA-65</strong> for anything new. Category 3 is the
-          safe default.</li>
-      <li><strong>ML-DSA-44</strong> when signature size matters
-          (constrained clients, cookie tokens) and Category 2 is acceptable
-          for the application's threat horizon.</li>
-      <li><strong>ML-DSA-87</strong> when a regulator or internal policy
-          demands top-tier post-quantum strength (e.g. long-lived signed
-          firmware images).</li>
+    <h2>Which one?</h2>
+    <ul>
+      <li><strong>ML-DSA-65</strong> — the safe default. Category&nbsp;3 is the recommended starting point for new systems.</li>
+      <li><strong>ML-DSA-44</strong> — when signature size matters (constrained clients, cookie-bound tokens) and Category&nbsp;2 fits the threat horizon.</li>
+      <li><strong>ML-DSA-87</strong> — when a regulator, compliance framework, or internal policy demands top-tier post-quantum strength (long-lived signed firmware, archival records).</li>
     </ul>
-  </section>
 
-  <section class="space-y-3">
-    <h2 class="text-xl font-semibold">JOSE representation</h2>
-    <p>jwt-pq uses the <code>AKP</code> key type from
-      <code>draft-ietf-cose-dilithium</code>:</p>
-    <pre class="bg-slate-50 p-4 rounded text-sm overflow-auto"><code class="language-json">{
+    <h2>JOSE representation</h2>
+    <p>
+      jwt-pq uses the <code>AKP</code> key type from
+      <code>draft-ietf-cose-dilithium</code> — "AKP" stands for Algorithm
+      Key Pair, a single-field container where the key material is the raw
+      algorithm encoding.
+    </p>
+<pre><code>{
   "kty": "AKP",
   "alg": "ML-DSA-65",
   "pub": "base64url(public_key_bytes)",
   "kid": "base64url(RFC 7638 thumbprint)"
 }</code></pre>
-    <p class="text-sm text-slate-600">
+
+    <p>
       Private JWKs add a <code>priv</code> field in the same base64url shape.
-      The <code>kid</code> is the RFC 7638 thumbprint over
-      <code>{alg, kty, pub}</code> — deterministic and independent of the
-      private key.
+      The <code>kid</code> is the RFC&nbsp;7638 thumbprint over
+      <code>{alg, kty, pub}</code> — deterministic, independent of the
+      private key, and memoized by <code>Key#jwk_thumbprint</code> so it is
+      cheap to reuse.
     </p>
-  </section>
+
+    <h2>Performance</h2>
+    <p>
+      Numbers from <code>bench/verify_throughput.rb</code> on a single
+      thread, Intel&nbsp;Core&nbsp;i9-9880H @ 2.30&nbsp;GHz, macOS,
+      Ruby&nbsp;3.4.6, liboqs&nbsp;0.15.0. Rerun on your target hardware
+      before capacity planning — ML-DSA is ~1-2 orders of magnitude slower
+      than Ed25519.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>alg</th>
+          <th>Sign (ops/s)</th>
+          <th>Verify (ops/s)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>ML-DSA-44</code></td><td>8,026</td><td>11,074</td></tr>
+        <tr><td><code>ML-DSA-65</code></td><td>5,972</td><td>9,339</td></tr>
+        <tr><td><code>ML-DSA-87</code></td><td>4,911</td><td>6,471</td></tr>
+        <tr><td><code>EdDSA+ML-DSA-65</code></td><td>4,695</td><td>3,924</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Correctness</h2>
+    <ul>
+      <li><strong>NIST ACVP known-answer tests.</strong> CI runs the full sigVer KAT subset shipped with liboqs against <code>Key#verify</code> for ML-DSA-44/65/87, covering positive and negative cases, on every push.</li>
+      <li><strong>Cross-language interop.</strong> A weekly workflow signs with jwt-pq and verifies against <code>dilithium-py</code> (and vice versa) across all three parameter sets.</li>
+    </ul>
+
+    <p>
+      FIPS&nbsp;204 specifies hedged signing with internal randomness, so
+      sigGen output is non-deterministic — that is why the CI focuses on
+      sigVer KATs plus round-trip interop.
+    </p>
+  </article>
 </section>

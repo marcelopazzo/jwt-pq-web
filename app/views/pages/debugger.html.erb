@@ -1,90 +1,19 @@
 <% content_for :title, "JWT debugger" %>
+<% content_for :description, "Verify post-quantum JWTs — ML-DSA and hybrid EdDSA+ML-DSA — against the live jwt-pq gem." %>
 
-<section class="space-y-6">
-  <header class="space-y-2">
-    <h1 class="text-3xl font-bold tracking-tight">JWT debugger</h1>
-    <p class="text-slate-700">
-      Verify post-quantum JWTs against the live jwt-pq gem. Paste an encoded token plus
-      its public JWK (<code>kty: "AKP"</code>) and press <strong>Verify</strong>.
-      The server runs the actual gem — no JavaScript reimplementation.
+<section class="page">
+  <header class="docs-hero">
+    <span class="ruleset">standalone permalink</span>
+    <h1 class="docs-hero__title">
+      <span class="text-display-italic">JWT</span> debugger.
+    </h1>
+    <p class="docs-hero__lede">
+      Every verification below runs <code class="code-inline">JWT::PQ::JWK.import</code>
+      and <code class="code-inline">JWT.decode</code> server-side against the
+      real jwt-pq gem. No JavaScript reimplementation, no cached result.
+      Share this page — token + JWK are posted over HTTPS and never stored.
     </p>
   </header>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"
-       data-controller="debugger"
-       data-debugger-verify-url-value="<%= verify_path %>"
-       data-debugger-samples-url-value="/samples">
-    <div class="space-y-4">
-      <div class="space-y-1">
-        <label for="token" class="block text-sm font-medium">Encoded token</label>
-        <textarea id="token"
-                  data-debugger-target="token"
-                  spellcheck="false"
-                  maxlength="16384"
-                  rows="8"
-                  class="w-full font-mono text-sm p-3 border border-slate-300 rounded"></textarea>
-      </div>
-
-      <div class="space-y-1">
-        <label for="pubkey" class="block text-sm font-medium">
-          Public JWK (<code>kty: "AKP"</code>)
-        </label>
-        <textarea id="pubkey"
-                  data-debugger-target="pubkey"
-                  spellcheck="false"
-                  maxlength="8192"
-                  rows="10"
-                  class="w-full font-mono text-sm p-3 border border-slate-300 rounded"></textarea>
-      </div>
-
-      <div class="flex flex-wrap gap-2">
-        <button type="button"
-                data-action="debugger#verify"
-                class="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800">
-          Verify
-        </button>
-        <button type="button"
-                data-action="debugger#loadSample"
-                data-sample="ml_dsa_65"
-                class="px-3 py-2 bg-slate-100 text-slate-900 rounded hover:bg-slate-200">
-          Load ML-DSA-65 sample
-        </button>
-        <button type="button"
-                data-action="debugger#loadSample"
-                data-sample="ml_dsa_44"
-                class="px-3 py-2 bg-slate-100 text-slate-900 rounded hover:bg-slate-200">
-          ML-DSA-44 sample
-        </button>
-        <button type="button"
-                data-action="debugger#loadSample"
-                data-sample="ml_dsa_87"
-                class="px-3 py-2 bg-slate-100 text-slate-900 rounded hover:bg-slate-200">
-          ML-DSA-87 sample
-        </button>
-
-        <%# Hybrid sample buttons are hidden until jwt-pq exposes a canonical
-            hybrid JWK export format. See app/services/sample_token_factory.rb. %>
-      </div>
-    </div>
-
-    <div class="space-y-4">
-      <div class="panel">
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600 mb-1">Header</h3>
-        <pre class="bg-slate-50 p-3 rounded text-sm overflow-auto"><code data-debugger-target="header">—</code></pre>
-      </div>
-
-      <div class="panel">
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600 mb-1">Payload</h3>
-        <pre class="bg-slate-50 p-3 rounded text-sm overflow-auto"><code data-debugger-target="payload">—</code></pre>
-      </div>
-
-      <div class="panel">
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600 mb-1">Signature</h3>
-        <div data-debugger-target="signature"
-             class="status status--idle p-3 rounded border border-slate-200 text-sm">
-          Paste a token and JWK, then click Verify.
-        </div>
-      </div>
-    </div>
-  </div>
+  <%= render "shared/debugger" %>
 </section>

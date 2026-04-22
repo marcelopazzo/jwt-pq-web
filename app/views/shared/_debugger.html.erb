@@ -1,0 +1,123 @@
+<%#
+  The jwt-pq debugger is rendered here by the home page and the standalone
+  /debugger route. It POSTs to `verify_path` and GETs `samples_path/:id`.
+  Behavior is driven entirely by app/javascript/controllers/debugger_controller.js.
+%>
+<section class="debugger"
+         data-controller="debugger"
+         data-debugger-verify-url-value="<%= verify_path %>"
+         data-debugger-samples-url-value="/samples">
+  <header class="debugger__header">
+    <div class="debugger__headline">
+      <span class="ruleset">post-quantum JWT debugger</span>
+      <h2 class="debugger__title">
+        Verify against
+        <span class="text-display-italic">the real gem.</span>
+      </h2>
+      <p class="debugger__sub">
+        Paste an <code class="code-inline">alg: ML-DSA-*</code> or
+        <code class="code-inline">alg: EdDSA+ML-DSA-*</code> token plus its
+        public JWK. Rails hands both to <code class="code-inline">JWT::PQ::JWK.import</code>
+        and <code class="code-inline">JWT.decode</code>, then renders whatever
+        the gem returns. No JavaScript crypto. No mock.
+      </p>
+    </div>
+
+    <div class="debugger__samples" role="group" aria-label="Load sample token">
+      <span class="field-title">Load sample</span>
+      <div class="debugger__sample-buttons">
+        <button type="button" class="btn btn-ghost" data-action="debugger#loadSample" data-sample="ml_dsa_44">ML-DSA-44</button>
+        <button type="button" class="btn btn-ghost" data-action="debugger#loadSample" data-sample="ml_dsa_65">ML-DSA-65</button>
+        <button type="button" class="btn btn-ghost" data-action="debugger#loadSample" data-sample="ml_dsa_87">ML-DSA-87</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="debugger__grid">
+    <div class="debugger__col">
+      <div class="panel debugger__card">
+        <div class="field-label">
+          <span class="field-title"><span class="field-title-accent">01</span> &nbsp; Encoded token</span>
+          <span class="chip" data-debugger-target="tokenCount">0 bytes</span>
+        </div>
+        <div class="input-shell">
+          <textarea id="token"
+                    class="textarea-crypto"
+                    data-debugger-target="token"
+                    data-action="input->debugger#updateCounts"
+                    spellcheck="false"
+                    maxlength="16384"
+                    rows="8"
+                    placeholder="eyJhbGciOiJNTC1EU0EtNjUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJ1LTEifQ..."></textarea>
+        </div>
+      </div>
+
+      <div class="panel debugger__card">
+        <div class="field-label">
+          <span class="field-title"><span class="field-title-accent">02</span> &nbsp; Public JWK
+            <span class="debugger__hint">(kty: "AKP")</span>
+          </span>
+          <span class="chip" data-debugger-target="pubkeyCount">0 bytes</span>
+        </div>
+        <div class="input-shell">
+          <textarea id="pubkey"
+                    class="textarea-crypto"
+                    data-debugger-target="pubkey"
+                    data-action="input->debugger#updateCounts"
+                    spellcheck="false"
+                    maxlength="8192"
+                    rows="10"
+                    placeholder='{&#10;  "kty": "AKP",&#10;  "alg": "ML-DSA-65",&#10;  "pub": "...",&#10;  "kid": "..."&#10;}'></textarea>
+        </div>
+      </div>
+
+      <div class="debugger__actions">
+        <button type="button"
+                class="btn btn-primary"
+                data-action="debugger#verify"
+                data-debugger-target="submit">
+          <span class="debugger__btn-label">Verify signature</span>
+          <span class="kbd">↵</span>
+        </button>
+        <button type="button"
+                class="btn btn-ghost"
+                data-action="debugger#clear">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="debugger__col">
+      <div class="status-bar"
+           data-debugger-target="status"
+           data-state="idle"
+           role="status"
+           aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="status-bar__message" data-debugger-target="statusMessage">
+          Idle — paste a token, or load a sample.
+        </span>
+        <span class="status-bar__meta" data-debugger-target="statusMeta"></span>
+      </div>
+
+      <div class="panel debugger__card output-pane">
+        <div class="field-label">
+          <span class="field-title">Header · JOSE</span>
+          <span class="chip chip-accent" data-debugger-target="algChip" hidden></span>
+        </div>
+        <pre><code data-debugger-target="header">{
+  /* header will appear here after verify */
+}</code></pre>
+      </div>
+
+      <div class="panel debugger__card output-pane">
+        <div class="field-label">
+          <span class="field-title">Payload · Claims</span>
+        </div>
+        <pre><code data-debugger-target="payload">{
+  /* payload claims will appear here */
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>

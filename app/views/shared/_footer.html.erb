@@ -1,6 +1,41 @@
-<footer class="border-t border-slate-200 mt-16">
-  <div class="container mx-auto px-5 py-8 max-w-4xl text-sm text-slate-600 flex flex-wrap items-center justify-between gap-4">
-    <p>MIT-licensed. No analytics, no tracking.</p>
-    <a href="https://github.com/marcelopazzo/jwt-pq" rel="noopener" class="hover:text-slate-900">Source on GitHub</a>
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__col">
+      <p class="site-footer__lede">
+        <span class="text-display-italic">jwt-pq</span> is an
+        open-source Ruby gem adding ML-DSA (FIPS&nbsp;204) and hybrid
+        EdDSA+ML-DSA signatures to the ruby-jwt ecosystem.
+      </p>
+      <p class="site-footer__fine">
+        MIT licensed &middot; No analytics &middot; This site runs the
+        real gem server-side — every verification is authoritative.
+      </p>
+    </div>
+
+    <div class="site-footer__col site-footer__col--links">
+      <div>
+        <h4 class="site-footer__heading">Reference</h4>
+        <ul class="site-footer__list">
+          <li><a href="https://rubydoc.info/gems/jwt-pq" rel="noopener" target="_blank">YARD API</a></li>
+          <li><a href="https://github.com/marcelopazzo/jwt-pq" rel="noopener" target="_blank">Source</a></li>
+          <li><a href="https://rubygems.org/gems/jwt-pq" rel="noopener" target="_blank">RubyGems</a></li>
+          <li><%= link_to "JWKS demo", jwks_path %></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="site-footer__heading">Specifications</h4>
+        <ul class="site-footer__list">
+          <li><a href="https://csrc.nist.gov/pubs/fips/204/final" rel="noopener" target="_blank">FIPS 204</a></li>
+          <li><a href="https://datatracker.ietf.org/doc/draft-ietf-cose-dilithium/" rel="noopener" target="_blank">cose-dilithium</a></li>
+          <li><a href="https://datatracker.ietf.org/doc/rfc9864/" rel="noopener" target="_blank">RFC 9864</a></li>
+          <li><a href="https://github.com/marcelopazzo/jwt-pq/blob/main/SPEC.md" rel="noopener" target="_blank">SPEC.md</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-footer__baseline">
+    <span class="marquee-numeric">ML-DSA-44 &middot; ML-DSA-65 &middot; ML-DSA-87 &middot; EdDSA+ML-DSA</span>
+    <span class="marquee-numeric">NIST PQC &middot; liboqs backend</span>
   </div>
 </footer>

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <title><%= content_for?(:title) ? yield(:title) : "jwt-pq" %> — Post-quantum JWT for Ruby</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA." %>">
+    <meta name="theme-color" content="#08090b">
+    <meta name="color-scheme" content="dark">
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA, verified server-side against the real gem." %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
 
@@ -13,6 +15,10 @@
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
     <%= yield :head %>
 
@@ -24,11 +30,16 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-white text-slate-900 antialiased">
-    <%= render "shared/header" %>
-    <main class="container mx-auto px-5 py-10 max-w-4xl">
-      <%= yield %>
-    </main>
-    <%= render "shared/footer" %>
+  <body class="relative min-h-full bg-canvas text-fg-primary antialiased font-mono selection:bg-accent/25 selection:text-fg-primary">
+    <div class="lattice pointer-events-none fixed inset-0 z-0" aria-hidden="true"></div>
+    <div class="bloom pointer-events-none fixed inset-x-0 top-[-20rem] h-[40rem] z-0" aria-hidden="true"></div>
+
+    <div class="relative z-10 flex min-h-screen flex-col">
+      <%= render "shared/header" %>
+      <main class="flex-1">
+        <%= yield %>
+      </main>
+      <%= render "shared/footer" %>
+    </div>
   </body>
 </html>

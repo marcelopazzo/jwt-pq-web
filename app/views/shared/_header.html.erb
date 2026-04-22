@@ -1,14 +1,31 @@
-<header class="border-b border-slate-200">
-  <div class="container mx-auto px-5 py-4 max-w-4xl flex flex-wrap items-center justify-between gap-4">
-    <%= link_to "jwt-pq", root_path, class: "font-semibold tracking-tight text-lg" %>
-    <nav class="flex flex-wrap items-center gap-4 text-sm">
-      <%= link_to "Quick start", quickstart_path, class: "text-slate-700 hover:text-slate-900" %>
-      <%= link_to "Algorithms", algorithms_path, class: "text-slate-700 hover:text-slate-900" %>
-      <%= link_to "Hybrid", hybrid_path, class: "text-slate-700 hover:text-slate-900" %>
-      <%= link_to "Security", security_path, class: "text-slate-700 hover:text-slate-900" %>
-      <%= link_to "Debugger", debugger_path, class: "text-slate-700 hover:text-slate-900" %>
-      <a href="https://rubydoc.info/gems/jwt-pq" class="text-slate-700 hover:text-slate-900" rel="noopener">API</a>
-      <a href="https://github.com/marcelopazzo/jwt-pq" class="text-slate-700 hover:text-slate-900" rel="noopener">GitHub</a>
+<% current = request.path %>
+<header class="site-header">
+  <div class="site-header__inner">
+    <%= link_to root_path, class: "brand" do %>
+      <span class="brand__glyph" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M6 6h20v20H6z" opacity="0.25" />
+          <path d="M10 10h12v12H10z" />
+          <path d="M14 14h4v4h-4z" fill="currentColor" stroke="none" />
+        </svg>
+      </span>
+      <span class="brand__word">jwt<span class="brand__word-accent">-pq</span></span>
+      <span class="brand__tag">ruby</span>
+    <% end %>
+
+    <nav class="site-nav" aria-label="Primary">
+      <%= link_to "Quickstart", quickstart_path, class: "nav-link#{' is-active' if current == quickstart_path}" %>
+      <%= link_to "Algorithms", algorithms_path, class: "nav-link#{' is-active' if current == algorithms_path}" %>
+      <%= link_to "Hybrid", hybrid_path, class: "nav-link#{' is-active' if current == hybrid_path}" %>
+      <%= link_to "Security", security_path, class: "nav-link#{' is-active' if current == security_path}" %>
+      <%= link_to "Debugger", debugger_path, class: "nav-link#{' is-active' if current == debugger_path}" %>
+      <span class="site-nav__rule" aria-hidden="true"></span>
+      <a href="https://rubydoc.info/gems/jwt-pq" class="nav-link nav-link--ext" rel="noopener" target="_blank">
+        API <span aria-hidden="true">↗</span>
+      </a>
+      <a href="https://github.com/marcelopazzo/jwt-pq" class="nav-link nav-link--ext" rel="noopener" target="_blank">
+        GitHub <span aria-hidden="true">↗</span>
+      </a>
     </nav>
   </div>
 </header>
