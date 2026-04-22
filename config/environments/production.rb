@@ -60,12 +60,8 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # DNS rebinding / Host-header attack protection. Kamal proxy hits `/up`
+  # with an internal Host, so the healthcheck path is exempted.
+  config.hosts = [ "jwt-pq.marcelopazzo.com" ]
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
