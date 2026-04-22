@@ -39,7 +39,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Post-quantum JWT signatures (ML-DSA + hybrid EdDSA+ML-DSA)
-gem "jwt-pq", "~> 0.5"
+gem "jwt-pq", "~> 0.6"
 # Required by jwt-pq for hybrid EdDSA+ML-DSA operation
 gem "ed25519", "~> 1.4"
 
