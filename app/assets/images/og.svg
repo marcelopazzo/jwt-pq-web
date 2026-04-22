@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bloom" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12584f" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#08090b" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="lattice" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#1b1e23" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="#08090b"/>
+  <rect width="1200" height="630" fill="url(#lattice)"/>
+  <rect width="1200" height="460" fill="url(#bloom)"/>
+
+  <g transform="translate(96 188)">
+    <g transform="scale(6)">
+      <rect x="6" y="6" width="20" height="20" rx="1" fill="none" stroke="#7af5e8" stroke-width="1.5" opacity="0.3"/>
+      <rect x="10" y="10" width="12" height="12" rx="1" fill="none" stroke="#7af5e8" stroke-width="1.5"/>
+      <rect x="13" y="13" width="6" height="6" fill="#7af5e8"/>
+    </g>
+  </g>
+
+  <g font-family="'JetBrains Mono', ui-monospace, monospace" fill="#e8e9ec">
+    <text x="320" y="260" font-size="42" font-weight="400" letter-spacing="0.24em" fill="#7af5e8" opacity="0.85">JWT &#183; POST-QUANTUM</text>
+    <text x="320" y="380" font-size="116" font-weight="600" letter-spacing="-0.02em">jwt-pq</text>
+    <text x="320" y="446" font-size="34" font-weight="400" fill="#b6b9c2">ML-DSA and hybrid EdDSA+ML-DSA</text>
+    <text x="320" y="490" font-size="34" font-weight="400" fill="#b6b9c2">JWT signatures for Ruby.</text>
+  </g>
+
+  <g font-family="'JetBrains Mono', ui-monospace, monospace" fill="#7af5e8" opacity="0.7">
+    <text x="96" y="590" font-size="22" letter-spacing="0.18em">JWT-PQ.MARCELOPAZZO.COM</text>
+  </g>
+
+  <g font-family="'JetBrains Mono', ui-monospace, monospace" fill="#e8e9ec" opacity="0.5">
+    <text x="1104" y="590" font-size="22" text-anchor="end" letter-spacing="0.12em">FIPS 204 &#183; liboqs</text>
+  </g>
+</svg>

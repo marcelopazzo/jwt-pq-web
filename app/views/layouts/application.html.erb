@@ -1,17 +1,36 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
   <head>
-    <title><%= content_for?(:title) ? yield(:title) : "jwt-pq" %> — Post-quantum JWT for Ruby</title>
+    <% page_title       = content_for?(:title) ? "#{yield(:title)} — Post-quantum JWT for Ruby" : "jwt-pq — Post-quantum JWT for Ruby" %>
+    <% page_description = content_for?(:description) ? yield(:description) : "Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA, verified server-side against the real gem." %>
+    <% canonical_url    = "https://jwt-pq.marcelopazzo.com#{request.path}" %>
+    <% og_image_url     = "https://jwt-pq.marcelopazzo.com/og.png" %>
+
+    <title><%= page_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#08090b">
     <meta name="color-scheme" content="dark">
-    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA, verified server-side against the real gem." %>">
+    <meta name="description" content="<%= page_description %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
 
-    <meta property="og:title" content="jwt-pq — Post-quantum JWT for Ruby">
-    <meta property="og:description" content="Post-quantum JWT signatures for Ruby. ML-DSA (FIPS 204) and hybrid EdDSA+ML-DSA.">
+    <link rel="canonical" href="<%= canonical_url %>">
+
+    <meta property="og:site_name" content="jwt-pq">
+    <meta property="og:title" content="<%= page_title %>">
+    <meta property="og:description" content="<%= page_description %>">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= canonical_url %>">
+    <meta property="og:image" content="<%= og_image_url %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="jwt-pq — Post-quantum JWT for Ruby">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= page_title %>">
+    <meta name="twitter:description" content="<%= page_description %>">
+    <meta name="twitter:image" content="<%= og_image_url %>">
+    <meta name="twitter:image:alt" content="jwt-pq — Post-quantum JWT for Ruby">
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
