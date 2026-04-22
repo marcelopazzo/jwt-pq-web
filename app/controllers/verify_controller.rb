@@ -9,6 +9,12 @@ class VerifyController < ApplicationController
   MAX_TOKEN_BYTES = 16_384
   MAX_PUBKEY_BYTES = 8_192
 
+  # /verify is a stateless public API: no session, no auth, no DB write, no
+  # side effect beyond returning the verification result computed from the
+  # posted JSON. CSRF protection guards against cross-origin state changes
+  # tied to a victim's session — there is no such state here — so skipping
+  # forgery protection on :create is intentional and the endpoint is free to
+  # be called from curl / third-party clients.
   skip_forgery_protection only: :create
 
   rate_limit to: 10, within: 1.minute, by: -> { request.remote_ip }, with: -> { render_rate_limited }, only: :create
