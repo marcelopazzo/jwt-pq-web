@@ -104,6 +104,7 @@
     <ul>
       <li>Call <code>Key#destroy!</code> when a key is no longer needed — especially in long-running processes where the buffer would otherwise sit in memory indefinitely.</li>
       <li>Use <code>JWKSet.fetch</code> rather than hand-rolled HTTP for remote JWKS. The defaults are deliberately conservative; raise the limits only after you understand them.</li>
+      <li>After your PQ migration is complete, pass <code>strict: true</code> to <code>JWKSet.import</code> / <code>JWKSet.fetch</code> so unexpected non-AKP keys in a JWKS raise instead of being silently skipped.</li>
       <li>Publish <code>kid</code> on every token (<code>JWT.encode(payload, key, alg, { kid: key.jwk_thumbprint })</code>) so verifiers can select the right key during rotation.</li>
       <li>Pin the <code>algorithms:</code> array on the verifier side. Never accept "whatever the header says" without an allowlist.</li>
     </ul>

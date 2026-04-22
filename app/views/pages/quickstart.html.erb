@@ -18,12 +18,12 @@
   <article class="prose-doc">
     <h2>Requirements</h2>
     <ul>
-      <li>Ruby &ge; 3.2</li>
+      <li>Ruby &ge; 3.2 — CI covers 3.2, 3.3, 3.4, and 4.0 on Linux and macOS.</li>
       <li>CMake &ge; 3.15 and a C compiler (gcc or clang) — only needed at install time.</li>
     </ul>
 
     <h2>Install the gem</h2>
-<pre><code>gem "jwt-pq", "~&gt; 0.5"
+<pre><code>gem "jwt-pq", "~&gt; 0.6"
 
 # Optional — only if you want the hybrid algorithms
 gem "jwt-eddsa"</code></pre>
@@ -104,6 +104,17 @@ payload, = JWT.decode(token, key, true, algorithms: [header["alg"]])</code></pre
       (<code>cache_ttl:</code>, <code>timeout:</code>,
       <code>max_body_bytes:</code>, …).
     </p>
+
+    <p>
+      By default, <code>JWKSet.import</code> and <code>JWKSet.fetch</code>
+      silently skip members with an unknown <code>kty</code> (RSA, EC, OKP)
+      or an unsupported <code>alg</code> within <code>kty: "AKP"</code>. This
+      unblocks incremental PQ rollouts where a single
+      <code>/.well-known/jwks.json</code> carries both classical and ML-DSA
+      keys. Pass <code>strict: true</code> once the migration is done to
+      restore fail-fast behaviour:
+    </p>
+<pre><code>JWT::PQ::JWKSet.fetch(url, strict: true)</code></pre>
 
     <h2>Try it live</h2>
     <p>
