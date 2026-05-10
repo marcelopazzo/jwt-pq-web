@@ -2,11 +2,6 @@ name: Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      run_setup:
-        description: "Run `kamal setup` instead of `kamal deploy` (first-time bootstrap)"
-        type: boolean
-        default: false
 
 concurrency:
   group: deploy-production
@@ -56,15 +51,9 @@ jobs:
         run: printenv RAILS_MASTER_KEY > config/master.key
 
       - name: Release stale deploy lock
-        if: inputs.run_setup != true
         run: bundle exec kamal lock release || true
 
-      - name: Kamal setup (first-time bootstrap)
-        if: inputs.run_setup == true
-        run: bundle exec kamal setup
-
       - name: Kamal deploy
-        if: inputs.run_setup != true
         run: bundle exec kamal deploy
 
       - name: Clean up local secrets

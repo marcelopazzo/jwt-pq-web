@@ -35,7 +35,7 @@ bin/rails jwks:rotate           # Rotate the long-lived JWKS key pair
 - `app/services/jwks_key_store.rb` — long-lived ML-DSA-65 key pair persisted on the Kamal volume
 - `app/javascript/controllers/debugger_controller.js` — Stimulus controller for the `/debugger` page
 - `config/deploy.yml` — Kamal config;
-- `.github/workflows/deploy.yml` — manual-trigger deploy with `run_setup` flag for first-time bootstrap
+- `.github/workflows/deploy.yml` — manual-trigger deploy via `kamal deploy`
 
 ## Stack
 
@@ -54,7 +54,7 @@ liboqs must be installed. On macOS: `brew install liboqs`. The production Docker
 
 - **Host**: Hetzner CAX11 ARM server (`46.225.176.175`); kamal-proxy terminates SSL and routes by `Host:` header.
 - **Domain**: `jwt-pq.marcelopazzo.com`
-- **Trigger**: manual only via GitHub Actions `workflow_dispatch`. Use the `run_setup` checkbox for the first-time bootstrap; subsequent deploys leave it unchecked.
+- **Trigger**: manual only via GitHub Actions `workflow_dispatch`.
 - **Secrets (GitHub)**: `SSH_PRIVATE_KEY`, `RAILS_MASTER_KEY`. `GITHUB_TOKEN` is used for GHCR registry auth.
 - **Invariants** — do not break:
   - Service name stays `jwt-pq-web`.
