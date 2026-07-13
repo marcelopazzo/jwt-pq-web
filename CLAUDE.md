@@ -43,7 +43,7 @@ bin/rails jwks:rotate           # Rotate the long-lived JWKS key pair
 - Solid Queue / Solid Cache / Solid Cable (no Redis)
 - Puma behind Thruster
 - Kamal 2 for deploy
-- `jwt-pq ~> 0.5` (the whole reason this app exists)
+- `jwt-pq ~> 0.6` (the whole reason this app exists)
 - `ed25519 ~> 1.4` (reserved for hybrid samples once the gem exposes a canonical hybrid JWK export)
 
 ## System dependency

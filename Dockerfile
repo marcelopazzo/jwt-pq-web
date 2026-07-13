@@ -18,7 +18,7 @@ ENV RAILS_ENV="production" \
 
 FROM base AS build
 
-# jwt-pq compiles liboqs 0.15.0 from source during native-extension install,
+# jwt-pq compiles liboqs 0.16.0 from source during native-extension install,
 # so the build stage needs cmake + a C toolchain. Debian bookworm-slim ships
 # cmake via apt; pinning to what is in bookworm avoids tracking a separate
 # LIBOQS_VERSION here (the gem controls that).
