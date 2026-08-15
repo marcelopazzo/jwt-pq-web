@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bin/setup --skip-server",
+            "timeout": 600,
+            "statusMessage": "Running bin/setup (bundle install + db:prepare)..."
+          }
+        ]
+      }
+    ]
+  }
+}
