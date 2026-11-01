@@ -19,6 +19,7 @@ bin/rails test:system           # Run system tests (headless Chrome)
 bundle exec rubocop             # Lint (Rails Omakase)
 bundle exec rubocop -a          # Auto-fix
 bundle exec brakeman --no-pager # Security scan
+bin/bundler-audit check --update # Gem CVE audit
 bin/rails jwks:show             # Print the current public JWKS
 bin/rails jwks:rotate           # Rotate the long-lived JWKS key pair
 ```
