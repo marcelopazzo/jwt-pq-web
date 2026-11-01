@@ -1,0 +1,4 @@
+# Audit all gems listed in the Gemfile for known security problems by running bin/bundler-audit.
+# Advisories that are not relevant to the application can be listed (by CVE or GHSA id) below.
+
+ignore: []
